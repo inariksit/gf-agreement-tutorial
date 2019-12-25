@@ -1,8 +1,9 @@
 -- This is your homework assignment.
 -- Write this grammar as instructed in
 -- TODO-URL/agreement-1.html#subject-or-object-marking
+-- LEBDAM = Like English But Differential Argument Marking
 
-concrete AgreementVariable of Agreement = {
+concrete AgreementLEBDAM of Agreement = {
   lincat
     V,
     V2,

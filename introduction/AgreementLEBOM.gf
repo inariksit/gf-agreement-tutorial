@@ -1,45 +1,43 @@
--- This is a restricted version of the mini resource, made to illustrate verbal agreement.
--- For simplicity, we omit tense and a whole bunch of other things.
---
--- This is for Like-English-But-Object-Marking, LEBOM for short.
--- LEBOM behaves otherwise like English, with two differences:
---  * For intransitive verbs, always zero marking.
---  * For transitive verbs, always mark the object.
--- Example:
---   I sleep-∅	      ~ the cat sleep-∅
---   I drink-∅ me	    ~ the cat drink-∅ me
---   I drink-s water	~ the cat drink-s water
+{- This is a restricted version of the mini resource, made to illustrate verbal agreement.
+For simplicity, we omit tense and a whole bunch of other things.
+
+This is for Like-English-But-Object-Marking, LEBOM for short.
+LEBOM behaves otherwise like English, with two differences:
+ * For intransitive verbs, don't mark anything.
+ * For transitive verbs, mark the object.
+Example:
+   I sleep-∅	      ~ the cat sleep-∅
+   I drink-∅ me	    ~ the cat drink-∅ me
+   I drink-s water	~ the cat drink-s water -}
 
 concrete AgreementLEBOM of Agreement = AgreementEng [
- -- Restricted inheritance: we don't need to redefine things that are same in ordinary English.
-  Agr, Case, -- param
-  Cl, NP,    -- lincat
-  i_NP, you_NP, john_NP, water_NP -- lin
+  -- We reuse all that is same in ordinary English.
+  Agr, Case,   -- param
+    Sg3, Other,             -- Not strictly necessary to import,
+    Nom, Acc,               -- just to remind what the values are.
+
+  Cl, NP, V2,   -- lincat
+
+  i_NP, you_NP, -- lin
+   john_NP, water_NP,
+   drink_V2,
+
+  mkNP, mkV2    -- oper
   ] ** {
 
+  -- Here only cats and funs that are different from ordinary English.
   lincat
     V,
     VP = {s : Str} ;
-    V2 = {s : Agr => Str} ;
+
+    -- V2 is the same as in ordinary English:
+    --    V2 = {s : Agr => Str} ;
+    -- But the *meaning* of the inflection table is the opposite:
+    -- "drinks" agrees with a Sg3 object, "drink" agrees with other objs.
 
   lin
------------------------
--- Lexical functions --
------------------------
-
     sleep_V = {s = "sleep"} ;
 
-    -- This looks the same as in orginary English, but the *meaning* of the
-    -- inflection table is the opposite: "drinks" agrees with a Sg3 object.
-    drink_V2 = {
-      s = table {
-        Sg3   => "drinks" ;
-        Other => "drink" }
-      } ;
-
--------------------------
--- Syntactic functions --
--------------------------
     -- : V -> VP ;
     UseV v = v ;
 

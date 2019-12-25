@@ -1,9 +1,9 @@
--- This is a restricted version of the mini resource, made to illustrate verbal agreement.
--- For simplicity, we omit tense and a whole bunch of other things.
---
--- This is for the ordinary English, which marks subject in the verb:
---   I sleep-∅	      ~ the cat sleep-s
---   I drink-∅ water	~ the cat drink-s water
+{- This is a restricted version of the mini resource, made to illustrate verbal agreement.
+For simplicity, we omit tense and a whole bunch of other things.
+
+This is for the ordinary English, which marks subject in the verb:
+   I sleep-∅	      ~ the cat sleep-s
+   I drink-∅ water	~ the cat drink-s water -}
 concrete AgreementEng of Agreement = {
 
   param
@@ -29,38 +29,12 @@ concrete AgreementEng of Agreement = {
       a = Other
       } ;
 
-    you_NP = {
-      s = table {
-            Nom => "you" ;
-            Acc => "you" } ;
-      a = Other
-      } ;
+    you_NP = mkNP "you" Other ;
+    john_NP = mkNP "John" Sg3 ;
+    water_NP = mkNP "water" Sg3 ;
 
-    -- Tables that have the same right-hand side can we written in a shorter way.
-    -- Actually two shorter ways: see how it's written in john_NP and water_NP:
-
-    john_NP = {
-      s = table {
-            _ => "John"} ;
-      a = Sg3
-      } ;
-
-    water_NP = {
-      s = \\_ => "water" ;
-      a = Sg3
-      } ;
-
-    sleep_V = {
-      s = table {
-        Sg3   => "sleeps" ;
-        Other => "sleep" }
-      } ;
-
-    drink_V2 = {
-      s = table {
-        Sg3   => "drinks" ;
-        Other => "drink" }
-      } ;
+    sleep_V = mkV "sleep" ;
+    drink_V2 = mkV2 "drink" ;
 
 -------------------------
 -- Syntactic functions --
@@ -74,4 +48,19 @@ concrete AgreementEng of Agreement = {
     -- : NP -> VP -> Cl ;
     PredVP np vp = {s = np.s ! Nom ++ vp.s ! np.a} ;
 
+---------------------------------------
+-- Helper opers to reduce repetition --
+---------------------------------------
+oper
+
+  mkNP : Str -> Agr -> {s : Case => Str ; a : Agr} = \str,agr -> {
+    s = \\_ => str ;
+    a = agr
+    } ;
+
+  mkV, mkV2 : Str -> {s : Agr => Str} = \str -> {
+    s = table {
+      Sg3   => str + "s" ;
+      Other => str }
+    } ;
 }

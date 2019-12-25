@@ -1,15 +1,15 @@
--- This is a restricted version of the mini resource, made to illustrate verbal agreement.
--- For simplicity, we omit tense and a whole bunch of other things.
---
--- This is for Like-English-But-Object-Marking-and-Ergative, LEBOM-ERG for short.
--- LEBOM-ERG behaves otherwise like English, with two differences:
---  * For intransitive verbs, mark the subject.
---  * For transitive verbs, mark the object in the same way as
---    subject is marked for intransitive verbs.
--- Example:
---   me sleep-∅	      ~ the cat sleep-s
---   I drink-∅ me	    ~ the cat drink-∅ me
---   I drink-s water	~ the cat drink-s water
+{- This is a restricted version of the mini resource, made to illustrate verbal agreement.
+For simplicity, we omit tense and a whole bunch of other things.
+
+This is for Like-English-But-Object-Marking-and-Ergative, LEBOM-ERG for short.
+LEBOM-ERG behaves otherwise like English, with two differences:
+ * For intransitive verbs, mark the subject.
+ * For transitive verbs, mark the object in the same way as
+  subject is marked for intransitive verbs.
+Example:
+    me sleep-∅	      ~ the cat sleep-s
+    I drink-∅ me	    ~ the cat drink-∅ me
+    I drink-s water	~ the cat drink-s water -}
 
 concrete AgreementLEBOM_ERG of Agreement = {
 
@@ -44,7 +44,7 @@ concrete AgreementLEBOM_ERG of Agreement = {
     john_NP = mkNP "John" Sg3 ;
     water_NP = mkNP "water" Sg3 ;
     sleep_V = mkV "sleep" ;
-    drink_V2 = mkV "drink" ;
+    drink_V2 = mkV2 "drink" ;
 
 -------------------------
 -- Syntactic functions --
@@ -64,21 +64,16 @@ concrete AgreementLEBOM_ERG of Agreement = {
     -- : NP -> VP -> Cl ;
     PredVP np vp = {s = np.s ! vp.sc ++ vp.s ! np.a} ;
 
-
----------------------------------------
--- Helper opers to reduce repetition --
----------------------------------------
 oper
 
   mkNP : Str -> Agr -> {s : Case => Str ; a : Agr} = \str,agr -> {
-    s = \\_ => "str" ;
+    s = \\_ => str ;
     a = agr
     } ;
 
-  mkV : Str -> {s : Agr => Str} = \str -> {
+  mkV, mkV2 : Str -> {s : Agr => Str} = \str -> {
     s = table {
       Sg3   => str + "s" ;
       Other => str }
     } ;
-
 }

@@ -13,6 +13,10 @@ flags startcat=Cl ;
 
     i_NP,
     you_NP,
+    he_she_NP,
+    we_NP,
+    youPl_NP,
+    they_NP,
     john_NP,
     water_NP : NP ;
 

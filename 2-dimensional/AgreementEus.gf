@@ -104,8 +104,7 @@ oper
             Pl3 => "dira" }
     } ;
 
-  -- NB. this overgenerates, don't use as a resource in learning Basque.
-  -- Check rather https://upload.wikimedia.org/wikipedia/commons/3/36/Nor_Nori_Nork_taula_osoa.png
+  -- Inspiration: https://upload.wikimedia.org/wikipedia/commons/3/36/Nor_Nori_Nork_taula_osoa.png
   ukan : Verb2 = {s =
     \\obj,ag =>
        let prefix : Str = object ! obj ;

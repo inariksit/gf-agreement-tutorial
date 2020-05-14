@@ -118,9 +118,15 @@ oper
         Sg3 => "du"    ; Pl3 => "ditu" } ;
 
       agent : Agr => Agr => Str = \\a,o => case <a,o> of {
-        <Sg1> => "t"  ; <Pl1> => "gu" ;
-        <Sg2> => "zu" ; <Pl2> => "zue" ;
+        <Sg1, Sg1|Pl1> => nonExist ;
+        <Sg1> => "t" ;
+        <Sg2, Sg2|Pl2> => nonExist ;
+        <Sg2> => "zu" ;
         <Sg3> => [] ;
+        <Pl1, Sg1|Pl1> => nonExist ;
+        <Pl1> => "gu" ;
+        <Pl2, Sg2|Pl2> => nonExist ;
+        <Pl2> => "zue" ;
         -- If agent is Pl3, the morpheme is "zte" before following
         <Pl3, (Pl1|Sg2|Pl3)> => "zte" ;
         -- Otherwise the Pl3 agent morpheme is "te"

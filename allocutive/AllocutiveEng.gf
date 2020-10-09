@@ -36,4 +36,9 @@ concrete AllocutiveEng of Allocutive = open (S=SyntaxEng), ParadigmsEng, (L=Lexi
 
     -- : NP -> VP -> Cl ;
     PredVP np vp = S.mkUtt (S.mkS (S.mkCl np vp)) ;
+    PredVPMasc np vp = spoken_to "man" (PredVP np vp) ;
+    PredVPFem np vp = spoken_to "woman" (PredVP np vp) ;
+  oper
+    spoken_to : Str -> {s : Str} -> {s : Str} = \addressee,utt ->
+      {s = utt.s ++ "( spoken to a" ++ addressee ++ ")"} ;
 }

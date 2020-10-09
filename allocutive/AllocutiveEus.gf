@@ -6,48 +6,72 @@ concrete AllocutiveEus of Allocutive = open Prelude in {
     V3,
     VP = VerbPhrase ;
     NP = NounPhrase ;
-  lin
-    UseV v = v ;
+  lin UseV v = v ;
 
-    ComplV2 v2 np = {
-      s = np.s ! Abs ++ v2.s ; -- store object in
-      v = Trans np.a ; -- The object's agreement is now recorded in the VP
+  lin ComplV2 v2 np = {
+        s = np.s ! Abs ++ v2.s ; -- store object in
+        v = Trans np.a ; -- The object's agreement is now recorded in the VP
+        } ;
+
+  lin ComplV3 v3 do io = {
+        s = do.s ! Abs ++ io.s ! Dat ++ v3.s ;
+        v = Ditrans (agr2num do.a) io.a
+        } ;
+
+  oper
+    getSubj : NounPhrase -> VerbPhrase -> Str = \np,vp ->
+      case vp.v of {
+        Intrans => np.s ! Abs ;
+        _ => np.s ! Erg
+      } ;
+    getAux : NounPhrase -> VerbPhrase -> Str = \np,vp ->
+      case vp.v of {
+        Intrans => izan ! np.a ;
+        Trans objAgr => ukan ! objAgr ! np.a ;
+        Ditrans doAgr ioAgr => edun ! doAgr ! np.a ! ioAgr -- NB. arg order is different from ukan
+      } ;
+    getAuxAllocutive : Gender -> NounPhrase -> VerbPhrase -> Str = \g,np,vp ->
+      case vp.v of {
+        Intrans => allocutive_izan ! g ! np.a ;
+        Trans objAgr => allocutive_ukan ! g ! objAgr ! np.a ;
+        Ditrans doAgr ioAgr => allocutive_edun ! g ! doAgr ! np.a ! ioAgr
       } ;
 
-    ComplV3 v3 do io = {
-      s = do.s ! Abs ++ io.s ! Dat ++ v3.s ;
-      v = Ditrans (agr2num do.a) io.a
-      } ;
+  lin PredVP np vp =
+        let subj : Str = getSubj np vp ;
+            aux : Str = getAux np vp ;
+         in {s = subj ++ vp.s ++ aux} ;
 
-    PredVP np vp =
-      let subj : Str = case vp.v of {
-            Intrans => np.s ! Abs ;
-            _ => np.s ! Erg } ;
-          aux : Str = case vp.v of {
-            Intrans => izan ! np.a ;
-            Trans objAgr => ukan ! objAgr ! np.a ;
-            Ditrans doAgr ioAgr => edun ! doAgr ! np.a ! ioAgr -- NB. arg order is different from ukan
-            } ;
-      in {s = subj ++ vp.s ++ aux} ;
+  lin PredVPFem np vp =
+        let subj : Str = getSubj np vp ;
+            aux : Str = getAuxAllocutive Fem np vp ;
+         in {s = subj ++ vp.s ++ aux} ;
 
-    -- These verbs use the auxiliaries defined in opers
-    come_V = mkV "etorri" ;
-    see_V2 = mkV2 "ikusi" ;
-    give_V3 = mkV3 "eman" ;
+  lin PredVPMasc np vp =
+        let subj : Str = getSubj np vp ;
+            aux : Str = getAuxAllocutive Masc np vp ;
+         in {s = subj ++ vp.s ++ aux} ;
 
-    -- I'm letting all pronouns be prodropped, and just affect the agreement of verb.
-    i_NP = pron Ni ;
-    youSgFamFem_NP = pron (Hi Fem) ;
-    youSgFamMasc_NP = pron (Hi Masc) ;
-    youSgPol_NP = pron Zu ;
-    he_she_it_NP = pron Hau ;
-    we_NP = pron Gu ;
-    youPl_NP = pron Zuek ;
-    they_NP = pron Hauek ;
+  -- Verbs
+  lin come_V = mkV "etorri" ;
+  lin see_V2 = mkV2 "ikusi" ;
+  lin give_V3 = mkV3 "eman" ;
 
-    -- Other NPs
-    beer_NP = mkNP "garagardoak" "garagardoa" "garagardoari" Hau ;
-    cats_NP = mkNP "katuek" "katuak" "katuei" Hauek ;
+  -- I'm letting all pronouns be prodropped, and just affect the agreement of verb.
+  lin i_NP = pron Ni ;
+  lin youSgFamFem_NP = pron (Hi Fem) ;
+  lin youSgFamMasc_NP = pron (Hi Masc) ;
+  lin youSgPol_NP = pron Zu ;
+  lin he_she_it_NP = pron Hau ;
+  lin we_NP = pron Gu ;
+  lin youPl_NP = pron Zuek ;
+  lin they_NP = pron Hauek ;
+
+  -- Other NPs
+  lin beer_NP = mkNP "garagardoak" "garagardoa" "garagardoari" Hau ;
+  lin cats_NP = mkNP "katuek" "katuak" "katuei" Hauek ;
+
+  --------------------------------------------------------------------------------
 
   -- Noun phrases
   param
@@ -106,57 +130,65 @@ concrete AllocutiveEus of Allocutive = open Prelude in {
       Zuek  => "zarete" ;
       Hauek => "dira" } ;
 
+    -- Allocutive forms of intransitive auxiliary
+    -- There are only special forms for P1 and P3.
+    allocutive_izan : Gender => Verb = \\gend,abs =>
+      case abs of {
+        Hi _ | Zu | Zuek => izan ! abs ;
+        _                => ukan ! abs ! Hi gend
+      } ;
+
     -- Transitive auxiliary.
     -- The first argument is the object, second is subject.
     ukan : Verb2 = table {
       Ni => table {
-        Ni|Gu => nonExist ;
+        Ni|Gu   => nonExist ;
         Hi Fem  => "naun" ;
         Hi Masc => "nauk" ;
-        Zu => "nauzu" ;
-        Hau => "nau" ;
-        Zuek => "nauzue" ;
-        Hauek => "naute"
+        Zu      => "nauzu" ;
+        Hau     => "nau" ;
+        Zuek    => "nauzue" ;
+        Hauek   => "naute"
         } ;
       Hi _ => table {
-        Ni => "haut" ;
-        Hau => "hau" ;
-        Gu => "haugu" ;
+        Ni    => "haut" ;
+        Hau   => "hau" ;
+        Gu    => "haugu" ;
         Hauek => "haute" ;
-        _ => nonExist
+        _     => nonExist
         } ;
       Zu => table {
-        Ni => "zaitut" ;
-        Gu => "zaitugu" ;
-        Hau => "zaitu" ;
+        Ni    => "zaitut" ;
+        Gu    => "zaitugu" ;
+        Hau   => "zaitu" ;
         Hauek => "zaituzte" ;
-        _ => nonExist
+        _     => nonExist
         } ;
       Gu => table {
-        Ni|Gu => nonExist ;
-        Hi Fem => "gaitun" ;
+        Ni|Gu   => nonExist ;
+        Hi Fem  => "gaitun" ;
         Hi Masc => "gaituk" ;
-        Zu => "gaituzu" ;
-        Hau => "gaitu" ;
-        Zuek => "gaituzue" ;
-        Hauek => "gaituzte"
+        Zu      => "gaituzu" ;
+        Hau     => "gaitu" ;
+        Zuek    => "gaituzue" ;
+        Hauek   => "gaituzte"
         } ;
       Hau => table {
-        Ni => "dut" ;
-        Hi Fem => "dun" ;
+        Ni      => "dut" ;
+        Hi Fem  => "dun" ;
         Hi Masc => "duk" ;
-        Zu => "duzu" ;
-        Hau => "du" ;
-        Gu => "dugu" ;
-        Zuek => "duzue" ;
-        Hauek => "dute"
+        Zu      => "duzu" ;
+        Hau     => "du" ;
+        Gu      => "dugu" ;
+        Zuek    => "duzue" ;
+        Hauek   => "dute"
         } ;
       Zuek => table {
-        Ni => "zaituztet" ;
-        Hau => "zaituzte" ;
-        Gu => "zaituztegu" ;
+        Ni    => "zaituztet" ;
+        Hau   => "zaituzte" ;
+        Gu    => "zaituztegu" ;
         Hauek => "zaituztete" ;
-        _ => nonExist
+        _     => nonExist
         } ;
       Hauek => table { -- they <verb> …
         Ni      => "ditut" ;   -- me
@@ -170,23 +202,26 @@ concrete AllocutiveEus of Allocutive = open Prelude in {
         }
       } ;
 
-    -- The allocutive forms of ukan are otherwise like edun, except for plural.
-    -- TODO: confirm this. I got this list from staring a dump from a morphological analyser
-    -- so I might be wrong.
-    allocutive_ukan : Verb3 = \\abs,erg,dat =>
-      case <abs,erg,dat> of {
-        <Pl, Ni, Hi Fem> => "ditinat" ;
-        <Pl, Ni, Hi Masc> => "ditiat" ;
-        <Pl, Hi Fem, Hau> => "ditun" ;
-        <Pl, Hi Masc, Hau> => "dituk" ;
-        <Pl, Hau, Hi Fem> => "ditin" ;
-        <Pl, Hau, Hi Masc> => "ditik" ;
-        <Pl, Gu, Hi Fem> => "ditinagu" ;
-        <Pl, Gu, Hi Masc> => "ditiagu" ;
-        <Pl, Hauek, Hi Fem> => "ditizten" ;
-        <Pl, Hauek, Hi Masc> => "ditiztek" ;
-        _ => edun ! abs ! erg ! dat
+    -- The allocutive forms of ukan
+    allocutive_ukan : Gender => Verb2 = \\gend,abs,erg =>
+      case <gend,abs,erg> of {
+       <Fem,  Ni,    Hau>   => "nain" ;
+       <Fem,  Ni,    Hauek> => "naik" ;
+       <Fem,  Gu,    Hau>   => "gaitin" ;
+       <Fem,  Gu,    Hauek> => "gaitik" ;
+       <Fem,  Hauek, Ni>    => "ditinat" ;
+       <Masc, Hauek, Ni>    => "ditiat" ;
+       <Fem,  Hauek, Hau>   => "ditin" ;
+       <Masc, Hauek, Hau>   => "ditik" ;
+       <Fem,  Hauek, Gu>    => "ditinagu" ;
+       <Masc, Hauek, Gu>    => "ditiagu" ;
+       <Fem,  Hauek, Hauek> => "ditizten" ;
+       <Masc, Hauek, Hauek> => "ditiztek" ;
+       <_, _, Zu|Hi _|Zuek> => ukan ! abs ! erg ; -- Ergative 2nd person = no special forms
+       _ => edun ! (agr2num abs) ! erg ! Hi gend -- Other forms are like edun, with addressee as dative argument
         } ;
+
+    allocutive_edun : Gender => Verb3 = \\gend,abs,erg,dat => edun ! abs ! erg ! dat ++ "TODO:allocutive" ;
 
     -- Ditransitive auxiliary.
     -- The structure is Abs => Erg => Dat

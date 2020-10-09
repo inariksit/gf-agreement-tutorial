@@ -32,4 +32,7 @@ flags startcat=Cl ;
     ComplV2 : V2 -> NP -> VP ;
     ComplV3 : V3 -> NP -> NP -> VP ;
     PredVP : NP -> VP -> Cl ;
+
+    -- Special constructions for allocutive agreement
+    PredVPFem, PredVPMasc : NP -> VP -> Cl ;
 }

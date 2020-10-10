@@ -1,28 +1,55 @@
 concrete AllocutiveEus of Allocutive = open Prelude in {
 
   lincat
-    V,
-    V2,
-    V3,
-    VP = VerbPhrase ;
+    V, V2, V3, VP = VerbPhrase ;
     NP = NounPhrase ;
-  lin UseV v = v ;
 
-  lin ComplV2 v2 np = {
-        s = np.s ! Abs ++ v2.s ; -- store object in
-        v = Trans np.a ; -- The object's agreement is now recorded in the VP
-        } ;
+  lin
+    UseV v = v ;
 
-  lin ComplV3 v3 do io = {
-        s = do.s ! Abs ++ io.s ! Dat ++ v3.s ;
-        v = Ditrans (agr2num do.a) io.a
-        } ;
+    ComplV2 v2 np = {
+      s = np.s ! Abs ++ v2.s ; -- store object in
+      v = Trans np.a ; -- The object's agreement is now recorded in the VP
+      } ;
 
+    ComplV3 v3 do io = {
+      s = do.s ! Abs ++ io.s ! Dat ++ v3.s ;
+      v = Ditrans (agr2num do.a) io.a
+      } ;
+
+    PredVP = predVP ;
+
+    PredVPFem = predVPGender Fem ;
+
+    PredVPMasc = predVPGender Masc ;
+
+    -- Verbs
+    come_V = mkV "etorri" ;
+    see_V2 = mkV2 "ikusi" ;
+    give_V3 = mkV3 "eman" ;
+
+    -- I'm letting all pronouns be prodropped, and just affect the agreement of verb.
+    i_NP = pron Ni ;
+    youSgFamFem_NP = pron (Hi Fem) ;
+    youSgFamMasc_NP = pron (Hi Masc) ;
+    youSgPol_NP = pron Zu ;
+    he_she_it_NP = pron Hau ;
+    we_NP = pron Gu ;
+    youPl_NP = pron Zuek ;
+    they_NP = pron Hauek ;
+
+    -- Other NPs
+    beer_NP = mkNP "garagardoak" "garagardoa" "garagardoari" Hau ;
+    cats_NP = mkNP "katuek" "katuak" "katuei" Hauek ;
+
+-------------------------------------------------------------------------------------
+
+  -- Clauses
   oper
     getSubj : NounPhrase -> VerbPhrase -> Str = \np,vp ->
       case vp.v of {
         Intrans => np.s ! Abs ;
-        _ => np.s ! Erg
+        _       => np.s ! Erg
       } ;
     getAux : NounPhrase -> VerbPhrase -> Str = \np,vp ->
       case vp.v of {
@@ -30,48 +57,25 @@ concrete AllocutiveEus of Allocutive = open Prelude in {
         Trans objAgr => ukan ! objAgr ! np.a ;
         Ditrans doAgr ioAgr => edun ! doAgr ! np.a ! ioAgr -- NB. arg order is different from ukan
       } ;
-    getAuxAllocutive : Gender -> NounPhrase -> VerbPhrase -> Str = \g,np,vp ->
-      case vp.v of {
-        Intrans => allocutive_izan ! g ! np.a ;
-        Trans objAgr => allocutive_ukan ! g ! objAgr ! np.a ;
-        Ditrans doAgr ioAgr => allocutive_edun ! g ! doAgr ! np.a ! ioAgr
+
+    predVP : NounPhrase -> VerbPhrase -> SS = \np,vp ->
+      let subj : Str = getSubj np vp ;
+          aux : Str = getAux np vp ;
+      in {s = subj ++ vp.s ++ aux} ;
+
+    predVPGender : Gender -> NounPhrase -> VerbPhrase -> SS = \g,np,vp -> {
+      s = subj ++ vp.s ++ aux
+      } where {
+        getAuxAllocutive : Gender -> NounPhrase -> VerbPhrase -> Str = \g,np,vp ->
+          case vp.v of {
+            Intrans => allocutive_izan ! g ! np.a ;
+            Trans objAgr => allocutive_ukan ! g ! objAgr ! np.a ;
+            Ditrans doAgr ioAgr => allocutive_edun ! g ! doAgr ! np.a ! ioAgr
+          } ;
+        subj : Str = getSubj np vp ;
+        aux : Str = getAuxAllocutive g np vp ;
       } ;
 
-  lin PredVP np vp =
-        let subj : Str = getSubj np vp ;
-            aux : Str = getAux np vp ;
-         in {s = subj ++ vp.s ++ aux} ;
-
-  lin PredVPFem np vp =
-        let subj : Str = getSubj np vp ;
-            aux : Str = getAuxAllocutive Fem np vp ;
-         in {s = subj ++ vp.s ++ aux} ;
-
-  lin PredVPMasc np vp =
-        let subj : Str = getSubj np vp ;
-            aux : Str = getAuxAllocutive Masc np vp ;
-         in {s = subj ++ vp.s ++ aux} ;
-
-  -- Verbs
-  lin come_V = mkV "etorri" ;
-  lin see_V2 = mkV2 "ikusi" ;
-  lin give_V3 = mkV3 "eman" ;
-
-  -- I'm letting all pronouns be prodropped, and just affect the agreement of verb.
-  lin i_NP = pron Ni ;
-  lin youSgFamFem_NP = pron (Hi Fem) ;
-  lin youSgFamMasc_NP = pron (Hi Masc) ;
-  lin youSgPol_NP = pron Zu ;
-  lin he_she_it_NP = pron Hau ;
-  lin we_NP = pron Gu ;
-  lin youPl_NP = pron Zuek ;
-  lin they_NP = pron Hauek ;
-
-  -- Other NPs
-  lin beer_NP = mkNP "garagardoak" "garagardoa" "garagardoari" Hau ;
-  lin cats_NP = mkNP "katuek" "katuak" "katuei" Hauek ;
-
-  --------------------------------------------------------------------------------
 
   -- Noun phrases
   param
@@ -135,27 +139,27 @@ concrete AllocutiveEus of Allocutive = open Prelude in {
     allocutive_izan : Gender => Verb = \\gend,abs =>
       case abs of {
         Hi _ | Zu | Zuek => izan ! abs ;
-        _                => ukan ! abs ! Hi gend
+        _                => ukan ! abs ! Hi gend -- Spurious P2 ergative agreement
       } ;
 
     -- Transitive auxiliary.
     -- The first argument is the object, second is subject.
     ukan : Verb2 = table {
       Ni => table {
-        Ni|Gu   => nonExist ;
-        Hi Fem  => "naun" ;
-        Hi Masc => "nauk" ;
-        Zu      => "nauzu" ;
-        Hau     => "nau" ;
-        Zuek    => "nauzue" ;
-        Hauek   => "naute"
+        Ni|Gu   => nonExist ; -- I/we            <verb> me (doesn't exist, need to use reflexive construction)
+        Hi Fem  => "naun" ;   -- you.Sg.Fam.Fem  <verb> me
+        Hi Masc => "nauk" ;   -- you.Sg.Fam.Masc <verb> me
+        Zu      => "nauzu" ;  -- you.Sg.Pol      <verb> me
+        Hau     => "nau" ;    -- he/she/it       <verb> me
+        Zuek    => "nauzue" ; -- you.Pl          <verb> me
+        Hauek   => "naute"    -- they            <verb> me
         } ;
       Hi _ => table {
-        Ni    => "haut" ;
-        Hau   => "hau" ;
-        Gu    => "haugu" ;
-        Hauek => "haute" ;
-        _     => nonExist
+        Ni    => "haut" ;  -- I         <verb> you.Sg.Fam.*
+        Hau   => "hau" ;   -- he/she/it <verb> you.Sg.Fam.*
+        Gu    => "haugu" ; -- we        <verb> you.Sg.Fam.*
+        Hauek => "haute" ; -- they      <verb> you.Sg.Fam.*
+        _     => nonExist  -- you.*     <verb> you.Sg.Fam.* (doesn't exist, need to use reflexive construction)
         } ;
       Zu => table {
         Ni    => "zaitut" ;
@@ -190,25 +194,38 @@ concrete AllocutiveEus of Allocutive = open Prelude in {
         Hauek => "zaituztete" ;
         _     => nonExist
         } ;
-      Hauek => table { -- they <verb> …
-        Ni      => "ditut" ;   -- me
-        Hi Fem  => "ditun" ;   -- you.Sg.Fam.Fem
-        Hi Masc => "dituk" ;   -- you.Sg.Fam.Masc
-        Zu      => "dituzu" ;  -- you.Sg.Pol
-        Hau     => "ditu" ;    -- him/her/it
-        Gu      => "ditugu" ;  -- us
-        Zuek    => "dituzue" ; -- you.Pl
-        Hauek   => "dituzte"   -- them
+      Hauek => table {
+        Ni      => "ditut" ;
+        Hi Fem  => "ditun" ;
+        Hi Masc => "dituk" ;
+        Zu      => "dituzu" ;
+        Hau     => "ditu" ;
+        Gu      => "ditugu" ;
+        Zuek    => "dituzue" ;
+        Hauek   => "dituzte"
         }
       } ;
 
-    -- The allocutive forms of ukan
+    -- The allocutive forms of ukan (transitive auxiliary)
     allocutive_ukan : Gender => Verb2 = \\gend,abs,erg =>
       case <gend,abs,erg> of {
-       <Fem,  Ni,    Hau>   => "nain" ;
-       <Fem,  Ni,    Hauek> => "naik" ;
-       <Fem,  Gu,    Hau>   => "gaitin" ;
-       <Fem,  Gu,    Hauek> => "gaitik" ;
+       -- Absolutive P1 Sg
+       <Fem,  Ni, Hau> => "nain" ;
+       <Masc, Ni, Hau> => "naik" ;
+       <Fem,  Ni, Hauek> => "naiten" ;
+       <Masc, Ni, Hauek> => "naitek" ;
+
+       -- Absolutive P1 Pl
+       <Fem,  Gu, Hau> => "gaitin" ;
+       <Masc, Gu, Hau> => "gaitik" ;
+       <Fem,  Gu, Hauek> => "gaitizten" ;
+       <Masc, Gu, Hauek> => "gaitiztek" ;
+
+       -- Absolutive P3 Sg
+       <Fem,  Hau, Hauek> => "diten" ;
+       <Masc, Hau, Hauek> => "ditek" ;
+
+       -- Absolutive P3 Pl
        <Fem,  Hauek, Ni>    => "ditinat" ;
        <Masc, Hauek, Ni>    => "ditiat" ;
        <Fem,  Hauek, Hau>   => "ditin" ;
@@ -217,11 +234,89 @@ concrete AllocutiveEus of Allocutive = open Prelude in {
        <Masc, Hauek, Gu>    => "ditiagu" ;
        <Fem,  Hauek, Hauek> => "ditizten" ;
        <Masc, Hauek, Hauek> => "ditiztek" ;
-       <_, _, Zu|Hi _|Zuek> => ukan ! abs ! erg ; -- Ergative 2nd person = no special forms
-       _ => edun ! (agr2num abs) ! erg ! Hi gend -- Other forms are like edun, with addressee as dative argument
+
+       -- Any P2 argument: no special forms
+       <_, _, Zu|Hi _|Zuek> => ukan ! abs ! erg ;
+       <_, Zu|Hi _|Zuek, _>  => ukan ! abs ! erg ;
+
+       -- Rest of the forms: spurious P2 dative agreement from edun
+       _ => edun ! (agr2num abs) ! erg ! Hi gend
+
+
         } ;
 
-    allocutive_edun : Gender => Verb3 = \\gend,abs,erg,dat => edun ! abs ! erg ! dat ++ "TODO:allocutive" ;
+    allocutive_edun : Gender => Verb3 = \\gend,abs,erg,dat =>
+      case <gend,abs,erg,dat> of {
+        -- Sg P3 absolutive with …
+          -- Sg P3 ergative
+        <Fem,  Sg, Hau, Ni>    => "zidan" ; -- corresponds to "dit" in edun
+        <Masc, Sg, Hau, Ni>    => "zidak" ;
+        <Fem,  Sg, Hau, Hau>   => "zion" ;  -- corrresponds to "dio" in edun
+        <Masc, Sg, Hau, Hau>   => "ziok" ;
+        <Fem,  Sg, Hau, Gu>    => "zigun" ; -- corresponds to "digu" in edun
+        <Masc, Sg, Hau, Gu>    => "ziguk" ;
+        <Fem,  Sg, Hau, Hauek> => "zien" ;  -- corrresponds to "die" in edun
+        <Masc, Sg, Hau, Hauek> => "ziek" ;
+
+          -- Pl P3 ergative
+        <Fem,  Sg, Hauek, Ni>    => "zidaten" ; -- corresponds to "didate" in edun
+        <Masc, Sg, Hauek, Ni>    => "zidatek" ;
+        <Fem,  Sg, Hauek, Hau>   => "zioten" ;  -- corrresponds to "diote" in edun
+        <Masc, Sg, Hauek, Hau>   => "ziotek" ;
+        <Fem,  Sg, Hauek, Gu>    => "ziguten" ; -- corresponds to "digute" in edun
+        <Masc, Sg, Hauek, Gu>    => "zigutek" ;
+        <Fem,  Sg, Hauek, Hauek> => "zieten" ;  -- corrresponds to "diete" in edun
+        <Masc, Sg, Hauek, Hauek> => "zietek" ;
+
+          -- Sg P1 ergative
+        <Fem,  Sg, Ni, Hau>    => "zionat" ; -- corresponds to "diot" in edun
+        <Masc, Sg, Ni, Hau>    => "zioat" ;
+        <Fem,  Sg, Ni, Hauek>  => "zienat" ; -- corrresponds to "diet" in edun
+        <Masc, Sg, Ni, Hauek>  => "zieat" ;
+
+          -- Pl P1 ergative
+        <Fem,  Sg, Gu, Hau>    => "zionagu" ; -- corresponds to "diogu" in edun
+        <Masc, Sg, Gu, Hau>    => "zioagu" ;
+        <Fem,  Sg, Gu, Hauek>  => "zienagu" ; -- corrresponds to "diegu" in edun
+        <Masc, Sg, Gu, Hauek>  => "zieagu" ;
+
+        -- Pl P3 absolutive with …
+          -- Sg P3 ergative
+        <Fem,  Pl, Hau, Ni>    => "zizkidan" ; -- corresponds to "dizkit" in edun
+        <Masc, Pl, Hau, Ni>    => "zizkidak" ;
+        <Fem,  Pl, Hau, Hau>   => "zizkion" ;  -- corrresponds to "dizkio" in edun
+        <Masc, Pl, Hau, Hau>   => "zizkiok" ;
+        <Fem,  Pl, Hau, Gu>    => "zizkigun" ; -- corresponds to "dizkigu" in edun
+        <Masc, Pl, Hau, Gu>    => "zizkiguk" ;
+        <Fem,  Pl, Hau, Hauek> => "zizkien" ;  -- corrresponds to "dizkie" in edun
+        <Masc, Pl, Hau, Hauek> => "zizkiek" ;
+
+          -- Pl P3 ergative
+        <Fem,  Pl, Hauek, Ni>    => "zizkidaten" ; -- corresponds to "dizkidate" in edun
+        <Masc, Pl, Hauek, Ni>    => "zizkidatek" ;
+        <Fem,  Pl, Hauek, Hau>   => "zizkioten" ;  -- corrresponds to "dizkiote" in edun
+        <Masc, Pl, Hauek, Hau>   => "zizkiotek" ;
+        <Fem,  Pl, Hauek, Gu>    => "zizkiguten" ; -- corresponds to "dizkigute" in edun
+        <Masc, Pl, Hauek, Gu>    => "zizkigutek" ;
+        <Fem,  Pl, Hauek, Hauek> => "zizkieten" ;  -- corrresponds to "dizkiete" in edun
+        <Masc, Pl, Hauek, Hauek> => "zizkietek" ;
+
+          -- Sg P1 ergative
+        <Fem,  Pl, Ni, Hau>    => "zizkionat" ; -- corresponds to "dizkiot" in edun
+        <Masc, Pl, Ni, Hau>    => "zioat" ;
+        <Fem,  Pl, Ni, Hauek>  => "zizkienat" ; -- corrresponds to "dizkiet" in edun
+        <Masc, Pl, Ni, Hauek>  => "zizkieat" ;
+
+          -- Pl P1 ergative
+        <Fem,  Pl, Gu, Hau>    => "zizkionagu" ; -- corresponds to "dizkiogu" in edun
+        <Masc, Pl, Gu, Hau>    => "zizkioagu" ;
+        <Fem,  Pl, Gu, Hauek>  => "zizkienagu" ; -- corrresponds to "dizkiegu" in edun
+        <Masc, Pl, Gu, Hauek>  => "zizkieagu" ;
+
+        -- Other forms that already have P2 agreement: take as is from edun
+        _ => edun ! abs ! erg ! dat
+
+      } ;
 
     -- Ditransitive auxiliary.
     -- The structure is Abs => Erg => Dat
@@ -307,14 +402,14 @@ concrete AllocutiveEus of Allocutive = open Prelude in {
           } ;
         Hi Fem => table {
           Ni => "dizkidan" ;
-          Hau => "dizkion" ; -- "ditun"
+          Hau => "dizkion" ; -- allocutive: "ditun"
           Gu => "dizkigun" ;
           Hauek => "dizkien" ;
           _ => nonExist
           } ;
         Hi Masc => table {
           Ni => "dizkidak" ;
-          Hau => "dizkiok" ; -- "dituk"
+          Hau => "dizkiok" ; -- allocutive: "dituk"
           Gu => "dizkiguk" ;
           Hauek => "dizkiek" ;
           _ => nonExist
@@ -327,19 +422,19 @@ concrete AllocutiveEus of Allocutive = open Prelude in {
           _ => nonExist
           } ;
         Hau => table {
-          Ni => "dizkiot" ;
-          Hi Fem => "dizkion" ;  -- "ditin"
-          Hi Masc => "dizkiok" ; -- "ditik"
-          Zu => "dizkiozu" ;
+          Ni => "dizkit" ;
+          Hi Fem => "dizkin" ;  -- allocutive: "ditin"
+          Hi Masc => "dizkik" ; -- allocutive: "ditik"
+          Zu => "dizkizu" ;
           Hau => "dizkio" ;
-          Gu => "dizkiogu" ;
-          Zuek => "dizkiozue" ;
-          Hauek => "dizkiote"
+          Gu => "dizkigu" ;
+          Zuek => "dizkizue" ;
+          Hauek => "dizkie"
           } ;
         Gu => table {
           Ni|Gu => nonExist ;
-          Hi Fem  => "dizkinagu" ; -- "ditinagu"
-          Hi Masc => "dizkiagu" ;  -- "ditiagu"
+          Hi Fem  => "dizkinagu" ; -- allocutive: "ditinagu"
+          Hi Masc => "dizkiagu" ;  -- allocutive: "ditiagu"
           Zu => "dizkizugu" ;
           Hau => "dizkiogu" ;
           Zuek => "dizkizuegu" ;
@@ -354,8 +449,8 @@ concrete AllocutiveEus of Allocutive = open Prelude in {
           } ;
         Hauek => table {
           Ni => "dizkidate" ;
-          Hi Fem => "dizkinate" ; -- "ditizten"
-          Hi Masc => "dizkiate" ; -- "ditiztek"
+          Hi Fem => "dizkinate" ; -- allocutive: "ditizten"
+          Hi Masc => "dizkiate" ; -- allocutive: "ditiztek"
           Zu => "dizkizute" ;
           Hau => "dizkiote" ;
           Gu => "dizkigute" ;

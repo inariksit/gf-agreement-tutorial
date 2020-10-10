@@ -56,17 +56,19 @@ concrete AllocutiveEus of Allocutive = open Prelude in {
         Intrans => np.s ! Abs ;
         _       => np.s ! Erg
       } ;
-    getAux : NounPhrase -> VerbPhrase -> Str = \np,vp ->
-      case vp.v of {
-        Intrans => izan ! np.a ;
-        Trans objAgr => ukan ! objAgr ! np.a ;
-        Ditrans doAgr ioAgr => edun ! doAgr ! np.a ! ioAgr -- NB. arg order is different from ukan
-      } ;
 
-    predVP : NounPhrase -> VerbPhrase -> SS = \np,vp ->
-      let subj : Str = getSubj np vp ;
-          aux : Str = getAux np vp ;
-      in {s = subj ++ vp.s ++ aux} ;
+    predVP : NounPhrase -> VerbPhrase -> SS = \np,vp -> {
+      s = subj ++ vp.s ++ aux
+      } where {
+        getAux : NounPhrase -> VerbPhrase -> Str = \np,vp ->
+          case vp.v of {
+            Intrans => izan ! np.a ;
+            Trans objAgr => ukan ! objAgr ! np.a ;
+            Ditrans doAgr ioAgr => edun ! doAgr ! np.a ! ioAgr
+          } ; -- NB. arg order is different from ukan
+        subj : Str = getSubj np vp ;
+        aux : Str = getAux np vp ;
+      } ;
 
     predVPGender : Gender -> NounPhrase -> VerbPhrase -> SS = \g,np,vp -> {
       s = subj ++ vp.s ++ aux

@@ -28,11 +28,13 @@ concrete AllocutiveEng of Allocutive = open (S=SyntaxEng), ParadigmsEng, (L=Lexi
     give_V3 = L.give_V3 ;
 
     -- : V -> VP ;
-    UseV v = S.mkVP v ;
+    UseV = S.mkVP ;
     -- : V2 -> NP -> VP ;
-    ComplV2 v2 np = S.mkVP v2 np ;
+    ComplV2 = S.mkVP ;
     -- : V3 -> NP -> NP -> VP ;
     ComplV3 = S.mkVP ;
+    -- : NP -> VP ;
+    CompNP = S.mkVP ;
 
     -- : NP -> VP -> Cl ;
     PredVP np vp = S.mkUtt (S.mkS (S.mkCl np vp)) ;

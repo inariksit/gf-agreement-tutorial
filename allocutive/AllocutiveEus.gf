@@ -17,6 +17,11 @@ concrete AllocutiveEus of Allocutive = open Prelude in {
       v = Ditrans (agr2num do.a) io.a
       } ;
 
+    CompNP np = {
+      s = np.s ! Abs ;
+      v = Intrans
+      } ;
+
     PredVP = predVP ;
 
     PredVPFem = predVPGender Fem ;
@@ -402,14 +407,14 @@ concrete AllocutiveEus of Allocutive = open Prelude in {
           } ;
         Hi Fem => table {
           Ni => "dizkidan" ;
-          Hau => "dizkion" ; -- allocutive: "ditun"
+          Hau => "dizkion" ;
           Gu => "dizkigun" ;
           Hauek => "dizkien" ;
           _ => nonExist
           } ;
         Hi Masc => table {
           Ni => "dizkidak" ;
-          Hau => "dizkiok" ; -- allocutive: "dituk"
+          Hau => "dizkiok" ;
           Gu => "dizkiguk" ;
           Hauek => "dizkiek" ;
           _ => nonExist

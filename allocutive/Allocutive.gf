@@ -28,6 +28,7 @@ flags startcat=Cl ;
     see_V2 : V2 ;
     give_V3 : V3 ;
 
+    CompNP : NP -> VP ;
     UseV : V -> VP ;
     ComplV2 : V2 -> NP -> VP ;
     ComplV3 : V3 -> NP -> NP -> VP ;

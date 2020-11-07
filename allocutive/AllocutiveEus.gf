@@ -1,11 +1,12 @@
 concrete AllocutiveEus of Allocutive = open Prelude in {
 
   lincat
-    V, V2, V3, VP = VerbPhrase ;
+    V, V2, V3 = SS ;
+    VP = VerbPhrase ;
     NP = NounPhrase ;
 
   lin
-    UseV v = v ;
+    UseV v = v ** {v = Intrans} ;
 
     ComplV2 v2 np = {
       s = np.s ! Abs ++ v2.s ; -- store object in
@@ -30,8 +31,8 @@ concrete AllocutiveEus of Allocutive = open Prelude in {
 
     -- Verbs
     come_V = mkV "etorri" ;
-    see_V2 = mkV2 "ikusi" ;
-    give_V3 = mkV3 "eman" ;
+    see_V2 = mkV "ikusi" ;
+    give_V3 = mkV "eman" ;
 
     -- I'm letting all pronouns be prodropped, and just affect the agreement of verb.
     i_NP = pron Ni ;
@@ -114,15 +115,8 @@ concrete AllocutiveEus of Allocutive = open Prelude in {
       v : Valency
       } ;
 
-    mkV : Str -> VerbPhrase = \prc -> {
+    mkV : Str -> SS = \prc -> {
       s = prc ;
-      v = Intrans ;
-      } ;
-    mkV2 : Str -> VerbPhrase = \prc -> mkV prc ** {
-      v = Trans Hau -- Default argument, overridden in ComplV2
-      } ;
-    mkV3 : Str -> VerbPhrase = \prc -> mkV prc ** {
-      v = Ditrans Sg Hau -- Default argument, overridden in ComplV3
       } ;
 
     -- The actual inflecting verbs

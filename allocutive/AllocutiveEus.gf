@@ -6,21 +6,23 @@ concrete AllocutiveEus of Allocutive = open Prelude in {
     NP = NounPhrase ;
 
   lin
-    UseV v = v ** {v = Intrans} ;
+    UseV v = v ** {
+      a = Intrans
+      } ;
 
     ComplV2 v2 np = {
       s = np.s ! Abs ++ v2.s ; -- store object in
-      v = Trans np.a ; -- The object's agreement is now recorded in the VP
+      a = Trans np.a ; -- The object's agreement is now recorded in the VP
       } ;
 
     ComplV3 v3 do io = {
       s = do.s ! Abs ++ io.s ! Dat ++ v3.s ;
-      v = Ditrans (agr2num do.a) io.a
+      a = Ditrans (agr2num do.a) io.a
       } ;
 
     CompNP np = {
       s = np.s ! Abs ;
-      v = Intrans
+      a = Intrans
       } ;
 
     PredVP = predVP ;
@@ -53,7 +55,7 @@ concrete AllocutiveEus of Allocutive = open Prelude in {
   -- Clauses
   oper
     getSubj : NounPhrase -> VerbPhrase -> Str = \np,vp ->
-      case vp.v of {
+      case vp.a of {
         Intrans => np.s ! Abs ;
         _       => np.s ! Erg
       } ;
@@ -62,7 +64,7 @@ concrete AllocutiveEus of Allocutive = open Prelude in {
       s = subj ++ vp.s ++ aux
       } where {
         getAux : NounPhrase -> VerbPhrase -> Str = \np,vp ->
-          case vp.v of {
+          case vp.a of {
             Intrans => izan ! np.a ;
             Trans objAgr => ukan ! objAgr ! np.a ;
             Ditrans doAgr ioAgr => edun ! doAgr ! np.a ! ioAgr
@@ -75,7 +77,7 @@ concrete AllocutiveEus of Allocutive = open Prelude in {
       s = subj ++ vp.s ++ aux
       } where {
         getAuxAllocutive : Gender -> NounPhrase -> VerbPhrase -> Str = \g,np,vp ->
-          case vp.v of {
+          case vp.a of {
             Intrans => allocutive_izan ! g ! np.a ;
             Trans objAgr => allocutive_ukan ! g ! objAgr ! np.a ;
             Ditrans doAgr ioAgr => allocutive_edun ! g ! doAgr ! np.a ! ioAgr
@@ -83,7 +85,6 @@ concrete AllocutiveEus of Allocutive = open Prelude in {
         subj : Str = getSubj np vp ;
         aux : Str = getAuxAllocutive g np vp ;
       } ;
-
 
   -- Noun phrases
   param
@@ -105,14 +106,14 @@ concrete AllocutiveEus of Allocutive = open Prelude in {
 
   -- Verbs and VPs
   param
-    Valency = Intrans
-            | Trans Agr
-            | Ditrans Number Agr ;
+    ObjAgr = Intrans
+           | Trans Agr
+           | Ditrans Number Agr ;
   oper
     VerbPhrase : Type = {
       s : Str ; -- the participle, which carries only a small part of inflection.
                 -- In this simplified grammar, we assume always perfective aspect.
-      v : Valency
+      a : ObjAgr
       } ;
 
     mkV : Str -> SS = \prc -> {
@@ -242,9 +243,7 @@ concrete AllocutiveEus of Allocutive = open Prelude in {
 
        -- Rest of the forms: spurious P2 dative agreement from edun
        _ => edun ! (agr2num abs) ! erg ! Hi gend
-
-
-        } ;
+      } ;
 
     allocutive_edun : Gender => Verb3 = \\gend,abs,erg,dat =>
       case <gend,abs,erg,dat> of {

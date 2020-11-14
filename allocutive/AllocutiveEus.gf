@@ -129,7 +129,7 @@ concrete AllocutiveEus of Allocutive = open Prelude in {
     -- Not part of the lincat of V, V2, V3 nor VP.
     Verb  : Type =                 Subj => Str ;
     Verb2 : Type =          Obj => Subj => Str ;
-    Verb3 : Type = DObj => IObj => Subj => Str ;
+    Verb3 : Type = DObj => Subj => IObj => Str ;
 
     -- Intransitive auxiliary
     izan : Verb = table {
@@ -398,8 +398,8 @@ concrete AllocutiveEus of Allocutive = open Prelude in {
       Pl => table {
         Ni => table { -- Sg1 <verb> Pl3 to …
           Ni|Gu => nonExist ;
-          Hi Fem  => "dizkinat" ; -- you.Sg.Fam.Fem   -- "ditinat"
-          Hi Masc => "dizkiat" ;  -- you.Sg.Fam.Masc  -- "ditiat"
+          Hi Fem  => "dizkinat" ; -- you.Sg.Fam.Fem   -- allocutive transitive: "ditinat"
+          Hi Masc => "dizkiat" ;  -- you.Sg.Fam.Masc  -- allocutive transitive: "ditiat"
           Zu => "dizkizut" ;      -- you.Sg.Pol
           Hau => "dizkiot" ;      -- him/her/it
           Zuek => "dizkizuet" ;   -- you.Pl
@@ -454,8 +454,8 @@ concrete AllocutiveEus of Allocutive = open Prelude in {
           } ;
         Hauek => table {
           Ni => "dizkidate" ;
-          Hi Fem => "dizkinate" ; -- allocutive: "ditizten"
-          Hi Masc => "dizkiate" ; -- allocutive: "ditiztek"
+          Hi Fem => "dizkinate" ;
+          Hi Masc => "dizkiate" ;
           Zu => "dizkizute" ;
           Hau => "dizkiote" ;
           Gu => "dizkigute" ;

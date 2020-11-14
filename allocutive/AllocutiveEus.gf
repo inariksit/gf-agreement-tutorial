@@ -1,7 +1,7 @@
 concrete AllocutiveEus of Allocutive = open Prelude in {
 
   lincat
-    V, V2, V3 = SS ;
+    V, V2, V3, Cl = SS ;
     VP = VerbPhrase ;
     NP = NounPhrase ;
 
@@ -105,10 +105,15 @@ concrete AllocutiveEus of Allocutive = open Prelude in {
       case ag of {Gu|Zuek|Hauek => Pl ; _ => Sg} ;
 
   -- Verbs and VPs
+
+    -- Type aliases used in inflection tables
+    DObj : Type = Number ;
+    IObj, Obj, Subj : Type = Agr ;
+
   param
     ObjAgr = Intrans
-           | Trans Agr
-           | Ditrans Number Agr ;
+           | Trans Obj
+           | Ditrans DObj IObj ;
   oper
     VerbPhrase : Type = {
       s : Str ; -- the participle, which carries only a small part of inflection.
@@ -122,9 +127,9 @@ concrete AllocutiveEus of Allocutive = open Prelude in {
 
     -- The actual inflecting verbs
     -- Not part of the lincat of V, V2, V3 nor VP.
-    Verb  : Type =                  Agr => Str ;
-    Verb2 : Type =           Agr => Agr => Str ;
-    Verb3 : Type = Number => Agr => Agr => Str ;
+    Verb  : Type =                 Subj => Str ;
+    Verb2 : Type =          Obj => Subj => Str ;
+    Verb3 : Type = DObj => IObj => Subj => Str ;
 
     -- Intransitive auxiliary
     izan : Verb = table {
